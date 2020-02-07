@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 
+import 'model/movie.dart';
 import 'movies_page.dart';
 
 class MovieDetail extends StatelessWidget {

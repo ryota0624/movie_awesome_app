@@ -1,5 +1,6 @@
 import 'package:movie_awesome_app/tab_bar.dart';
 
+import 'model/movie.dart';
 import 'movies_page.dart';
 
 abstract class Route {}

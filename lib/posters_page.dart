@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'movies_page.dart';
+import 'model/movie.dart';
 import 'routes.dart' as routes;
 
 class PosterGrid extends StatelessWidget {

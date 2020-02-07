@@ -1,18 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:tmdb_client/tmdb_client.dart';
+import 'package:tmdb_client/tmdb_client.dart' as c;
+import 'model/movie.dart';
 import 'posters_page.dart' as poster_page;
 
 final sampleMovies = List<Movie>.generate(100,
     (i) => Movie(i.toString(), 'https://placehold.jp/150x150.png', 'title'));
 
 // TODO(ryota0624): modelに切り出し
-class Movie {
-  Movie(this.id, this.posterURL, this.title);
-
-  final String id;
-  final String posterURL;
-  final String title;
-}
 
 enum MoviesPageTab { list, posters }
 
@@ -57,7 +51,7 @@ class _MoviesState extends State<Movies> with SingleTickerProviderStateMixin {
   // TODO(ryota0624): tokenを`.env`からよむ。
   // TODO(ryota0624): Contextから取れるようにする
   // TODO(ryota0624): Bloc
-  final _resolver = TmdbResolver(
+  final _resolver = c.TmdbResolver(
     endPoint: '',
     apiKey: '',
   );
