@@ -1,0 +1,126 @@
+import 'package:flutter/material.dart';
+import 'package:movie_awesome_app/movies_page.dart' as list_page;
+import 'package:movie_awesome_app/routes.dart' as routes;
+import 'package:movie_awesome_app/tab_bar.dart';
+import 'package:movie_awesome_app/user_page.dart';
+
+import 'movie_detail.dart';
+
+void main() => runApp(MovieApp());
+
+class MovieApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      onGenerateRoute: (RouteSettings routeSettings) {
+//        if (!(routeSettings is routes.Route)) {
+//          throw StateError('invalid routeSetting $routeSettings');
+//        }
+        final route = routeSettings.arguments;
+        if (route is routes.Home) {
+          return MaterialPageRoute(
+            builder: (_) => MyHomePage(
+              initialSelectedTab: route.initialAppTab,
+            ),
+          );
+        }
+
+        if (route is routes.MovieDetail) {
+          return MaterialPageRoute(
+            builder: (_) => MovieDetail(
+              id: route.id,
+              preloadMovie: route.preloadMovie,
+            ),
+          );
+        }
+
+        throw UnimplementedError('route for ${routeSettings.arguments}');
+      },
+      title: 'Movie App',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: const MyHomePage(),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({Key key, this.initialSelectedTab}) : super(key: key);
+  final AppTab initialSelectedTab;
+
+  @override
+  _MyHomePageState createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State<MyHomePage>
+    with SingleTickerProviderStateMixin {
+  TabController _tabController;
+  String title;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: AppTab.values.length, vsync: this)
+      ..addListener(_changeTitle);
+
+    if (widget.initialSelectedTab != null) {
+      _tabController
+          .animateTo(AppTab.values.indexOf(widget.initialSelectedTab));
+    }
+    title = currentTab.screenHeaderText();
+  }
+
+  @override
+  void dispose() {
+    _tabController.removeListener(_changeTitle);
+    super.dispose();
+  }
+
+  AppTab get currentTab => AppTab.values[_tabController.index];
+
+  void _changeTitle() {
+    setState(() {
+      title = currentTab.screenHeaderText();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(title),
+      ),
+      bottomNavigationBar: AppTabBar(
+        controller: _tabController,
+      ),
+      body: Center(
+        child: TabBarView(
+          physics: const NeverScrollableScrollPhysics(),
+          controller: _tabController,
+          children: AppTab.values.map((appBar) => appBar.screen()).toList(),
+        ),
+      ),
+    );
+  }
+}
+
+extension on AppTab {
+  Widget screen() {
+    switch (this) {
+      case AppTab.movies:
+        return list_page.Movies();
+      case AppTab.user:
+        return UserPage();
+
+//      case AppTab.myReview:
+//        // TODO: Handle this case.
+//        break;
+//      case AppTab.screenSchedule:
+//        // TODO: Handle this case.
+//        break;
+      default:
+        return const Text('no implemented screen');
+    }
+  }
+}
