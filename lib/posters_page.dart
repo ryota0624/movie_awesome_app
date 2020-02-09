@@ -22,8 +22,11 @@ class PosterGrid extends StatelessWidget {
       ),
       itemBuilder: (BuildContext ctx, int i) {
         final movie = movies[i];
-        return PosterGridCard(
-          movie: movie,
+        return Hero(
+          tag: movie.id.toString(),
+          child: PosterGridCard(
+            movie: movie,
+          ),
         );
       },
     );
@@ -40,17 +43,13 @@ class PosterGridCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Hero(
-      tag: movie.id,
-//      decoration: BoxDecoration(
-//        border: Border.all(),
-//      ),
-      child: GestureDetector(
-        onTap: () => transitionToMovieDetail(context),
-        child: Image.network(
-          'https://image.tmdb.org/t/p/w500_and_h282_face/' + movie.posterURL,
-          fit: BoxFit.fill,
-        ),
+    return GestureDetector(
+      onTap: () => transitionToMovieDetail(context),
+      child: Image.network(
+        // posterのサイズをいい感じにする
+        'https://image.tmdb.org/t/p/w500_and_h282_face/' +
+            movie.posterURL,
+        fit: BoxFit.fill,
       ),
     );
   }

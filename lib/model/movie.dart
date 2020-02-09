@@ -5,6 +5,14 @@ class MovieID {
 
   @override
   String toString() => _value;
+
+  @override
+  bool operator ==(dynamic other) {
+    return _value==(other.toString());
+  }
+
+  @override
+  int get hashCode => _value.hashCode;
 }
 
 class Movie {
@@ -18,3 +26,12 @@ class Movie {
   final String posterURL;
   final String title;
 }
+
+final sampleMovies = List<Movie>.generate(
+  100,
+      (i) => Movie(
+    MovieID(i.toString()),
+    'https://placehold.jp/150x150.png',
+    'title',
+  ),
+);

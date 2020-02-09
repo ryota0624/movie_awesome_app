@@ -4,17 +4,7 @@ import 'package:movie_awesome_app/model/paging_collection.dart';
 import 'package:provide/provide.dart';
 import 'model/movie.dart';
 import 'posters_page.dart' as poster_page;
-
-final sampleMovies = List<Movie>.generate(
-  100,
-  (i) => Movie(
-    MovieID(i.toString()),
-    'https://placehold.jp/150x150.png',
-    'title',
-  ),
-);
-
-// TODO(ryota0624): modelに切り出し
+import 'routes.dart' as routes;
 
 enum MoviesPageTab { list, posters }
 
@@ -77,7 +67,6 @@ class _MoviesState extends State<Movies> with SingleTickerProviderStateMixin {
 
   TabBar get tabBar => TabBar(
         labelColor: Colors.blue,
-        indicatorColor: Colors.white,
         unselectedLabelColor: Colors.grey,
         // TODO(ryota0624): 装飾
         tabs: MoviesPageTabWidget.all,
@@ -141,12 +130,18 @@ class MovieListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 10),
-        child: ListTile(
-          leading: posterIcon,
-          title: Text(movie.title),
+    return GestureDetector(
+      onTap: () => transitionToMovieDetail(context),
+      child: Hero(
+        tag: movie.id.toString(),
+        child: Card(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 10),
+            child: ListTile(
+              leading: posterIcon,
+              title: Text(movie.title),
+            ),
+          ),
         ),
       ),
     );
@@ -155,7 +150,13 @@ class MovieListTile extends StatelessWidget {
   Widget get posterIcon => Image.network(
       'https://image.tmdb.org/t/p/w500_and_h282_face/' + movie.posterURL);
 
-  void transitionToMovieDetail() {}
+  void transitionToMovieDetail(BuildContext context) {
+    Navigator.of(context).pushNamed('',
+        arguments: routes.MovieDetail(
+          movie.id,
+          movie,
+        ));
+  }
 }
 
 class SearchBar extends StatelessWidget {
