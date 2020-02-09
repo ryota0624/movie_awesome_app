@@ -1,3 +1,5 @@
+class MovieID {}
+
 class Movie {
   Movie(this.id, this.posterURL, this.title);
 
