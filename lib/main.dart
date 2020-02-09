@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:movie_awesome_app/adapter/favorites.dart';
+import 'package:movie_awesome_app/bloc/favorite.dart';
+import 'package:movie_awesome_app/bloc/favorite_list.dart';
 import 'package:movie_awesome_app/bloc/movie_list.dart';
+import 'package:movie_awesome_app/model/favorite.dart';
 import 'package:movie_awesome_app/model/movies.dart';
 import 'package:movie_awesome_app/movies_page.dart' as list_page;
 import 'package:movie_awesome_app/routes.dart' as routes;
@@ -16,6 +20,8 @@ import 'movie_detail.dart';
 void main() {
   final providers = Providers()
     ..provide(Provider.value(prdConfiguration))
+    ..provide(Provider<DateTimeFactory>.value(DateTimeFactoryOnCore()))
+    ..provide(Provider<Favorites>.value(FavoritesOnMemory()))
     ..provide(Provider.function((BuildContext ctx) {
       final conf = Provide.value<Configuration>(ctx);
       return tmdb.TmdbResolver(
@@ -30,6 +36,15 @@ void main() {
     ..provide(Provider<MovieListBloc>.function((BuildContext ctx) {
       final movies = Provide.value<Movies>(ctx);
       return MovieListBloc(movies);
+    }))
+    ..provide(Provider<FavoriteListBloc>.function((BuildContext ctx) {
+      final fvs = Provide.value<Favorites>(ctx);
+      return FavoriteListBloc(fvs);
+    }))
+    ..provide(Provider<FavoriteBloc>.function((BuildContext ctx) {
+      final fvs = Provide.value<Favorites>(ctx);
+      final timeFactory = Provide.value<DateTimeFactory>(ctx);
+      return FavoriteBloc(fvs, timeFactory);
     }));
 
   runApp(ProviderNode(
