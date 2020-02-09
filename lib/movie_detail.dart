@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 
 import 'model/movie.dart';
-import 'movies_page.dart';
 
 class MovieDetail extends StatelessWidget {
   const MovieDetail({
@@ -10,7 +9,7 @@ class MovieDetail extends StatelessWidget {
     this.preloadMovie,
   }) : super(key: key);
 
-  final String id;
+  final MovieID id;
   final Movie preloadMovie;
 
   String get posterURL => preloadMovie.posterURL;

@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provide/provide.dart';
 
 class Configuration {
   const Configuration({
@@ -13,16 +14,7 @@ class Configuration {
   final String tmdbAPIKey;
 
   static Configuration of(BuildContext ctx) {
-    final provider =
-        ctx.dependOnInheritedWidgetOfExactType<ConfigurationProvider>();
-    return provider.configuration;
+    return Provide.value<Configuration>(ctx);
   }
 }
 
-class ConfigurationProvider extends InheritedWidget {
-  const ConfigurationProvider(this.configuration);
-
-  final Configuration configuration;
-  @override
-  bool updateShouldNotify(InheritedWidget oldWidget) => false;
-}

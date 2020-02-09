@@ -1,21 +1,21 @@
+import 'dart:async';
+
 import 'package:movie_awesome_app/model/movie.dart';
 import 'package:movie_awesome_app/model/movies.dart';
 import 'package:movie_awesome_app/model/paging_collection.dart';
-import 'package:movie_awesome_app/model/remote_data.dart';
 
-class MovieList {
-  MovieList(this._movies);
+class MovieListBloc {
+  MovieListBloc(this._movies);
+
   final Movies _movies;
 
-  AppendableRemotePagingCollection<Movie> _recent;
+  final StreamController<PagingCollection<Movie>> _recentController =
+      StreamController.broadcast();
+
+  Stream<PagingCollection<Movie>> get recentMovies =>
+      _recentController.stream;
 
   Future<void> fetchRecentMovies({Page page}) async {
-    try {
-      _recent = _recent.loadNext();
-      final recent = await _movies.recentMovies();
-      _recent = _recent.append(Success(recent));
-    } on ResourceGetError catch(e) {
-      _recent = _recent.append(Failure(e));
-    }
+    await _recentController.addStream(_movies.recentMovies().asStream());
   }
 }

@@ -23,6 +23,7 @@ dependencies:
   http: any
   tmdb_client:
     path: ../dart-tmdb
+  provide: 1.0.2
 
 dev_dependencies:
   flutter_test:

@@ -1,14 +1,13 @@
 import 'package:movie_awesome_app/tab_bar.dart';
 
 import 'model/movie.dart';
-import 'movies_page.dart';
 
 abstract class Route {}
 
 class MovieDetail extends Route {
   MovieDetail(this.id, [this.preloadMovie]);
 
-  final String id;
+  final MovieID id;
   final Movie preloadMovie;
 }
 

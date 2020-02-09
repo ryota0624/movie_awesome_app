@@ -1,9 +1,20 @@
-class MovieID {}
+class MovieID {
+  MovieID(this._value);
+
+  final String  _value;
+
+  @override
+  String toString() => _value;
+}
 
 class Movie {
-  Movie(this.id, this.posterURL, this.title);
+  Movie(
+    this.id,
+    this.posterURL,
+    this.title,
+  );
 
-  final String id;
+  final MovieID id;
   final String posterURL;
   final String title;
 }

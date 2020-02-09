@@ -1,12 +1,42 @@
 import 'package:flutter/material.dart';
+import 'package:movie_awesome_app/bloc/movie_list.dart';
+import 'package:movie_awesome_app/model/movies.dart';
 import 'package:movie_awesome_app/movies_page.dart' as list_page;
 import 'package:movie_awesome_app/routes.dart' as routes;
 import 'package:movie_awesome_app/tab_bar.dart';
 import 'package:movie_awesome_app/user_page.dart';
+import 'package:provide/provide.dart';
+import 'package:tmdb_client/tmdb_client.dart' as tmdb;
 
+import 'adapter/tmdb_api.dart';
+import 'configuration.dart';
+import 'configuration_prd.dart';
 import 'movie_detail.dart';
 
-void main() => runApp(MovieApp());
+void main() {
+  final providers = Providers()
+    ..provide(Provider.value(prdConfiguration))
+    ..provide(Provider.function((BuildContext ctx) {
+      final conf = Provide.value<Configuration>(ctx);
+      return tmdb.TmdbResolver(
+        endPoint: conf.tmdbAPIEndpoint,
+        apiKey: conf.tmdbAPIKey,
+      );
+    }))
+    ..provide(Provider<Movies>.function((BuildContext ctx) {
+      final tmdbResolver = Provide.value<tmdb.TmdbResolver>(ctx);
+      return MoviesOnTmdbApi(tmdbResolver);
+    }))
+    ..provide(Provider<MovieListBloc>.function((BuildContext ctx) {
+      final movies = Provide.value<Movies>(ctx);
+      return MovieListBloc(movies);
+    }));
+
+  runApp(ProviderNode(
+    providers: providers,
+    child: MovieApp(),
+  ));
+}
 
 class MovieApp extends StatelessWidget {
   @override

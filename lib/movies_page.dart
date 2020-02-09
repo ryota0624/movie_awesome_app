@@ -1,10 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:tmdb_client/tmdb_client.dart' as c;
+import 'package:movie_awesome_app/bloc/movie_list.dart';
+import 'package:movie_awesome_app/model/paging_collection.dart';
+import 'package:provide/provide.dart';
 import 'model/movie.dart';
 import 'posters_page.dart' as poster_page;
 
-final sampleMovies = List<Movie>.generate(100,
-    (i) => Movie(i.toString(), 'https://placehold.jp/150x150.png', 'title'));
+final sampleMovies = List<Movie>.generate(
+  100,
+  (i) => Movie(
+    MovieID(i.toString()),
+    'https://placehold.jp/150x150.png',
+    'title',
+  ),
+);
 
 // TODO(ryota0624): modelに切り出し
 
@@ -46,33 +54,14 @@ class _MoviesState extends State<Movies> with SingleTickerProviderStateMixin {
   TabController _tabController;
   TextEditingController _searchEditingController;
 
-  List<Movie> movies = [];
-
-  // TODO(ryota0624): tokenを`.env`からよむ。
-  // TODO(ryota0624): Contextから取れるようにする
-  // TODO(ryota0624): Bloc
-  final _resolver = c.TmdbResolver(
-    endPoint: '',
-    apiKey: '',
-  );
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    movieListBloc(context).fetchRecentMovies();
+  }
 
   @override
   void initState() {
-    _resolver.discoverMovie().then((res) {
-      if (mounted) {
-        setState(() {
-          final movies = res.results
-              .map((movie) => Movie(
-                    movie.id.toString(),
-                    movie.posterPath,
-                    movie.title,
-                  ))
-              .toList();
-          this.movies = movies;
-        });
-      }
-    });
-
     super.initState();
     _tabController = TabController(
       length: MoviesPageTab.values.length,
@@ -95,6 +84,9 @@ class _MoviesState extends State<Movies> with SingleTickerProviderStateMixin {
         controller: _tabController,
       );
 
+  MovieListBloc movieListBloc(BuildContext ctx) =>
+      Provide.value<MovieListBloc>(ctx);
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -104,12 +96,22 @@ class _MoviesState extends State<Movies> with SingleTickerProviderStateMixin {
         ),
         tabBar,
         Flexible(
-          child: TabBarView(
-            physics: const NeverScrollableScrollPhysics(),
-            controller: _tabController,
-            children:
-                MoviesPageTab.values.map((tab) => tab.screen(movies)).toList(),
-          ),
+          child: StreamBuilder(
+              stream: movieListBloc(context).recentMovies,
+              builder:
+                  (BuildContext c, AsyncSnapshot<PagingCollection<Movie>> s) {
+                if (s.hasData) {
+                  return TabBarView(
+                    physics: const NeverScrollableScrollPhysics(),
+                    controller: _tabController,
+                    children: MoviesPageTab.values
+                        .map((tab) => tab.screen(s.data.toList()))
+                        .toList(),
+                  );
+                }
+
+                return Text('Loading');
+              }),
         ),
       ],
     );
@@ -165,8 +167,8 @@ class SearchBar extends StatelessWidget {
     return TextField(
       controller: editingController,
       decoration: InputDecoration(
-        labelText: "Search",
-        hintText: "Search",
+        labelText: 'Search',
+        hintText: 'Search',
         prefixIcon: Icon(Icons.search),
       ),
     );
