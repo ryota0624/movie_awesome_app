@@ -1,11 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:provide/provide.dart';
 
-class UserPage extends StatelessWidget {
+import 'bloc/favorite_list.dart';
+
+class UserPage extends StatefulWidget {
+  @override
+  _UserPageState createState() => _UserPageState();
+}
+
+class _UserPageState extends State<UserPage> {
   final String nickname = 'poti';
 
   changeIcon() {}
 
   changeNickname() {}
+
+  FavoriteListBloc favoriteListBloc() =>
+      Provide.value<FavoriteListBloc>(context);
 
   @override
   Widget build(BuildContext context) {
@@ -46,6 +57,7 @@ class UserPage extends StatelessWidget {
             flex: 1,
             child: Row(
               children: [
+//                Expanded(child: Achievement.favorite(2)),
                 Expanded(child: Achievement.favorite(2)),
                 Expanded(child: Achievement.review(2)),
               ],

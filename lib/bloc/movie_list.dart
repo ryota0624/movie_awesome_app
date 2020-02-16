@@ -26,7 +26,7 @@ class MovieListBloc {
       _similarController.stream.where((m) => m.item1 == id).map((t) => t.item2);
 
   Future<void> fetchSimilarMovies(MovieID id, {Page page}) async {
-    await _similarController.addStream(
-        _movies.similarMovies(id).asStream().map((mC) => Tuple2(id, mC)));
+    final m = await _movies.similarMovies(id);
+    _similarController.add(Tuple2(id, m));
   }
 }

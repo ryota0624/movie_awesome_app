@@ -36,6 +36,7 @@ class _MovieDetailState extends State<MovieDetail> {
 
   @override
   void didChangeDependencies() {
+    print("didChangeDependencies");
     super.didChangeDependencies();
     movieListBloc().fetchSimilarMovies(widget.preloadMovie.id);
     fetchFavoriteByMovie();
