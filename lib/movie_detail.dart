@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:movie_awesome_app/model/paging_collection.dart';
@@ -35,11 +37,17 @@ class _MovieDetailState extends State<MovieDetail> {
       Provide.value<FavoriteListBloc>(context);
 
   @override
-  void didChangeDependencies() {
-    print("didChangeDependencies");
-    super.didChangeDependencies();
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      print("addPostFrameCallback");
+      fetchFavoriteByMovie();
+      fetchSimilarMovies();
+    });
+  }
+
+  void fetchSimilarMovies() {
     movieListBloc().fetchSimilarMovies(widget.preloadMovie.id);
-    fetchFavoriteByMovie();
   }
 
   void fetchFavoriteByMovie() {
@@ -88,7 +96,6 @@ class _MovieDetailState extends State<MovieDetail> {
           if (asyncSnapshot.connectionState == ConnectionState.waiting) {
             return FloatingActionButton(onPressed: () => {});
           }
-
           Color iconColor = Colors.grey;
           if (asyncSnapshot.connectionState == ConnectionState.active &&
               asyncSnapshot.data != null) {
@@ -115,10 +122,36 @@ class _MovieDetailState extends State<MovieDetail> {
     );
   }
 
+  FutureBuilder<PagingCollection<Movie>> buildSimilarMovieFutureBuilder() {
+    return FutureBuilder(
+      future: movieListBloc().similarMovies(widget.preloadMovie.id),
+      builder: (BuildContext ctx, AsyncSnapshot<PagingCollection<Movie>> s) {
+        if (!s.hasData) {
+          return Text('loading');
+        }
+
+        final movies = s.data.toList();
+        return GridView.builder(
+          itemCount: movies.length,
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 4,
+          ),
+          itemBuilder: (BuildContext ctx, int i) {
+            final movie = movies[i];
+            return PosterGridCard(
+              movie: movie,
+            );
+          },
+        );
+      },
+    );
+  }
+
   StreamBuilder<PagingCollection<Movie>> buildSimilarMovieStreamBuilder() {
     return StreamBuilder(
-      stream: movieListBloc().similarMovies(widget.preloadMovie.id),
+      stream: movieListBloc().similarMovies$,
       builder: (BuildContext ctx, AsyncSnapshot<PagingCollection<Movie>> s) {
+        print("called builer ${s.data.hashCode}");
         if (!s.hasData) {
           return Text('loading');
         }

@@ -58,9 +58,6 @@ class MovieApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       onGenerateRoute: (RouteSettings routeSettings) {
-//        if (!(routeSettings is routes.Route)) {
-//          throw StateError('invalid routeSetting $routeSettings');
-//        }
         final route = routeSettings.arguments;
         if (route is routes.Home) {
           return MaterialPageRoute(

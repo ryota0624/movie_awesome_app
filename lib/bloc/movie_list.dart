@@ -6,7 +6,11 @@ import 'package:movie_awesome_app/model/paging_collection.dart';
 import 'package:tuple/tuple.dart';
 
 class MovieListBloc {
-  MovieListBloc(this._movies);
+  MovieListBloc(this._movies) {
+    _similarController.stream.listen((d) {
+      print("received $d ${d.hashCode}");
+    });
+  }
 
   final Movies _movies;
 
@@ -19,14 +23,19 @@ class MovieListBloc {
     await _recentController.addStream(_movies.recentMovies().asStream());
   }
 
-  final StreamController<Tuple2<MovieID, PagingCollection<Movie>>>
+  final StreamController<PagingCollection<Movie>>
       _similarController = StreamController.broadcast();
 
-  Stream<PagingCollection<Movie>> similarMovies(MovieID id) =>
-      _similarController.stream.where((m) => m.item1 == id).map((t) => t.item2);
+  Stream<PagingCollection<Movie>> get similarMovies$ =>
+      _similarController.stream;
+
+  Future<PagingCollection<Movie>> similarMovies(MovieID id) =>
+      _movies.similarMovies(id);
 
   Future<void> fetchSimilarMovies(MovieID id, {Page page}) async {
-    final m = await _movies.similarMovies(id);
-    _similarController.add(Tuple2(id, m));
+    final movies = await _movies.similarMovies(id);
+    _similarController.sink.add(movies);
   }
 }
+
+// Stream のインスタンスが変わっているから空になっている。
