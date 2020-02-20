@@ -69,10 +69,14 @@ class MovieApp extends StatelessWidget {
 
         if (route is routes.MovieDetail) {
           return MaterialPageRoute(
-            builder: (_) => MovieDetail(
-              id: route.id,
-              preloadMovie: route.preloadMovie,
-            ),
+            builder: (_) {
+              print("rebuild MaterialPageRoute");
+              return MovieDetail(
+                id: route.id,
+                preloadMovie: route.preloadMovie,
+              );
+
+            }
           );
         }
 

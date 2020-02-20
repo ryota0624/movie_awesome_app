@@ -34,6 +34,7 @@ class MovieListBloc {
 
   Future<void> fetchSimilarMovies(MovieID id, {Page page}) async {
     final movies = await _movies.similarMovies(id);
+    print("fetchSimilarMovies");
     _similarController.sink.add(movies);
   }
 }

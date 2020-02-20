@@ -29,7 +29,7 @@ class MovieDetail extends StatefulWidget {
 class _MovieDetailState extends State<MovieDetail> {
   String get posterURL => widget.preloadMovie.posterURL;
 
-  MovieListBloc movieListBloc() => Provide.value<MovieListBloc>(context);
+  MovieListBloc get movieListBloc => Provide.value<MovieListBloc>(context);
 
   FavoriteBloc favoriteBloc() => Provide.value<FavoriteBloc>(context);
 
@@ -37,17 +37,14 @@ class _MovieDetailState extends State<MovieDetail> {
       Provide.value<FavoriteListBloc>(context);
 
   @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      print("addPostFrameCallback");
-      fetchFavoriteByMovie();
-      fetchSimilarMovies();
-    });
+  void didChangeDependencies() {
+    // TODO: implement didChangeDependencies
+    super.didChangeDependencies();
+    fetchSimilarMovies();
   }
 
   void fetchSimilarMovies() {
-    movieListBloc().fetchSimilarMovies(widget.preloadMovie.id);
+    movieListBloc.fetchSimilarMovies(widget.preloadMovie.id);
   }
 
   void fetchFavoriteByMovie() {
@@ -56,6 +53,7 @@ class _MovieDetailState extends State<MovieDetail> {
 
   @override
   Widget build(BuildContext context) {
+    print("_MovieDetailState.build");
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.preloadMovie.title),
@@ -81,7 +79,10 @@ class _MovieDetailState extends State<MovieDetail> {
                       height: 20,
                     ),
                     Expanded(
-                      child: buildSimilarMovieStreamBuilder(),
+                      child: SimilarMovies(
+                        key: GlobalKey(),
+                        similarMovies$: movieListBloc.similarMovies$,
+                      ),
                     ),
                   ],
                 ),
@@ -90,68 +91,42 @@ class _MovieDetailState extends State<MovieDetail> {
           ],
         ),
       ),
-      floatingActionButton: StreamBuilder(
-        stream: favoriteListBloc().favorite(widget.preloadMovie.id),
-        builder: (BuildContext ctx, AsyncSnapshot<Favorite> asyncSnapshot) {
-          if (asyncSnapshot.connectionState == ConnectionState.waiting) {
-            return FloatingActionButton(onPressed: () => {});
-          }
-          Color iconColor = Colors.grey;
-          if (asyncSnapshot.connectionState == ConnectionState.active &&
-              asyncSnapshot.data != null) {
-            iconColor = Colors.red;
-          }
-
-          return FloatingActionButton(
-            onPressed: () {
-              if (asyncSnapshot.data == null) {
-                favoriteBloc().add(widget.preloadMovie.id);
-                fetchFavoriteByMovie();
-                return;
-              }
-              favoriteBloc().remove(asyncSnapshot.data);
-              fetchFavoriteByMovie();
-            },
-            child: Icon(
-              Icons.favorite,
-              color: iconColor,
-            ),
-          );
-        },
-      ),
+//      floatingActionButton: StreamBuilder(
+//        stream: favoriteListBloc().favorite(widget.preloadMovie.id),
+//        builder: (BuildContext ctx, AsyncSnapshot<Favorite> asyncSnapshot) {
+//          if (asyncSnapshot.connectionState == ConnectionState.waiting) {
+//            return FloatingActionButton(onPressed: () => {});
+//          }
+//          Color iconColor = Colors.grey;
+//          if (asyncSnapshot.connectionState == ConnectionState.active &&
+//              asyncSnapshot.data != null) {
+//            iconColor = Colors.red;
+//          }
+//
+//          return FloatingActionButton(
+//            onPressed: () {
+//              if (asyncSnapshot.data == null) {
+//                favoriteBloc().add(widget.preloadMovie.id);
+//                fetchFavoriteByMovie();
+//                return;
+//              }
+//              favoriteBloc().remove(asyncSnapshot.data);
+//              fetchFavoriteByMovie();
+//            },
+//            child: Icon(
+//              Icons.favorite,
+//              color: iconColor,
+//            ),
+//          );
+//        },
+//      ),
     );
   }
 
   FutureBuilder<PagingCollection<Movie>> buildSimilarMovieFutureBuilder() {
     return FutureBuilder(
-      future: movieListBloc().similarMovies(widget.preloadMovie.id),
+      future: movieListBloc.similarMovies(widget.preloadMovie.id),
       builder: (BuildContext ctx, AsyncSnapshot<PagingCollection<Movie>> s) {
-        if (!s.hasData) {
-          return Text('loading');
-        }
-
-        final movies = s.data.toList();
-        return GridView.builder(
-          itemCount: movies.length,
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 4,
-          ),
-          itemBuilder: (BuildContext ctx, int i) {
-            final movie = movies[i];
-            return PosterGridCard(
-              movie: movie,
-            );
-          },
-        );
-      },
-    );
-  }
-
-  StreamBuilder<PagingCollection<Movie>> buildSimilarMovieStreamBuilder() {
-    return StreamBuilder(
-      stream: movieListBloc().similarMovies$,
-      builder: (BuildContext ctx, AsyncSnapshot<PagingCollection<Movie>> s) {
-        print("called builer ${s.data.hashCode}");
         if (!s.hasData) {
           return Text('loading');
         }
@@ -175,5 +150,40 @@ class _MovieDetailState extends State<MovieDetail> {
 
   void back(BuildContext context) {
     Navigator.of(context).pop();
+  }
+}
+
+class SimilarMovies extends StatelessWidget {
+  const SimilarMovies({Key key, this.similarMovies$}) : super(key: key);
+  final Stream<PagingCollection<Movie>> similarMovies$;
+
+  @override
+  Widget build(BuildContext context) {
+    print("SimilarMovies.build");
+    return StreamBuilder(
+      key: Key("d"),
+      stream: similarMovies$,
+      builder: (BuildContext ctx, AsyncSnapshot<PagingCollection<Movie>> s) {
+        print("called builer ${s.data.hashCode} ${s.data} ${s}");
+
+        if (!s.hasData) {
+          return Text('loading');
+        }
+
+        final movies = s.data.toList();
+        return GridView.builder(
+          itemCount: movies.length,
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 4,
+          ),
+          itemBuilder: (BuildContext ctx, int i) {
+            final movie = movies[i];
+            return PosterGridCard(
+              movie: movie,
+            );
+          },
+        );
+      },
+    );
   }
 }
