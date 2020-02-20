@@ -6,7 +6,7 @@ class FavoritesOnMemory extends Favorites {
   final _data = Map<MovieID, Favorite>.identity();
   @override
   Future<PagingCollection<Favorite>> allFavorites() async {
-    return PagingCollection(Page(), _data.values.toList());
+    return PagingCollection(Page.initial, _data.values.toList());
   }
 
   @override

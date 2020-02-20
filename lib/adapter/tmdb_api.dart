@@ -10,7 +10,7 @@ class MoviesOnTmdbApi extends Movies {
 
   @override
   Future<PagingCollection<Movie>> recentMovies({Page page}) async {
-    final movies = await _tmdbResolver.discoverMovie();
+    final movies = await _tmdbResolver.discoverMovie(page: page.asInt());
     return PagingCollection(
         page,
         movies.results

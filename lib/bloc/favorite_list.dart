@@ -23,8 +23,8 @@ class FavoriteListBloc {
   final StreamController<Favorite> _favoriteController =
   StreamController.broadcast();
 
-  Stream<Favorite> favorite(MovieID id) =>
-      _favoriteController.stream;//.firstWhere((f) => f.movieID == id).asStream();
+  Stream<Favorite> favorite(MovieID id) => //_favoriteController.stream;
+      _favoriteController.stream.firstWhere((f) => f.movieID == id).asStream();
 
   Future<void> fetchFavoriteByMovie(MovieID movieID) async {
     await _favoriteController

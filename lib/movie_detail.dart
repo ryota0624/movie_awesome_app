@@ -38,9 +38,9 @@ class _MovieDetailState extends State<MovieDetail> {
 
   @override
   void didChangeDependencies() {
-    // TODO: implement didChangeDependencies
     super.didChangeDependencies();
     fetchSimilarMovies();
+    fetchFavoriteByMovie();
   }
 
   void fetchSimilarMovies() {
@@ -53,7 +53,6 @@ class _MovieDetailState extends State<MovieDetail> {
 
   @override
   Widget build(BuildContext context) {
-    print("_MovieDetailState.build");
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.preloadMovie.title),
@@ -81,7 +80,7 @@ class _MovieDetailState extends State<MovieDetail> {
                     Expanded(
                       child: SimilarMovies(
                         key: GlobalKey(),
-                        similarMovies$: movieListBloc.similarMovies$,
+                        similarMovies$: movieListBloc.similarMovies$(widget.id),
                       ),
                     ),
                   ],
@@ -91,63 +90,39 @@ class _MovieDetailState extends State<MovieDetail> {
           ],
         ),
       ),
-//      floatingActionButton: StreamBuilder(
-//        stream: favoriteListBloc().favorite(widget.preloadMovie.id),
-//        builder: (BuildContext ctx, AsyncSnapshot<Favorite> asyncSnapshot) {
-//          if (asyncSnapshot.connectionState == ConnectionState.waiting) {
-//            return FloatingActionButton(onPressed: () => {});
-//          }
-//          Color iconColor = Colors.grey;
-//          if (asyncSnapshot.connectionState == ConnectionState.active &&
-//              asyncSnapshot.data != null) {
-//            iconColor = Colors.red;
-//          }
-//
-//          return FloatingActionButton(
-//            onPressed: () {
-//              if (asyncSnapshot.data == null) {
-//                favoriteBloc().add(widget.preloadMovie.id);
-//                fetchFavoriteByMovie();
-//                return;
-//              }
-//              favoriteBloc().remove(asyncSnapshot.data);
-//              fetchFavoriteByMovie();
-//            },
-//            child: Icon(
-//              Icons.favorite,
-//              color: iconColor,
-//            ),
-//          );
-//        },
-//      ),
+      floatingActionButton: favoriteButton(),
     );
   }
 
-  FutureBuilder<PagingCollection<Movie>> buildSimilarMovieFutureBuilder() {
-    return FutureBuilder(
-      future: movieListBloc.similarMovies(widget.preloadMovie.id),
-      builder: (BuildContext ctx, AsyncSnapshot<PagingCollection<Movie>> s) {
-        if (!s.hasData) {
-          return Text('loading');
+  StreamBuilder<Favorite> favoriteButton() {
+    return StreamBuilder(
+      stream: favoriteListBloc().favorite(widget.preloadMovie.id),
+      builder: (BuildContext ctx, AsyncSnapshot<Favorite> asyncSnapshot) {
+        if (asyncSnapshot.connectionState == ConnectionState.waiting) {
+          return Text('');
+        }
+        Color iconColor = Colors.grey;
+        if (asyncSnapshot.connectionState == ConnectionState.active &&
+            asyncSnapshot.data != null) {
+          iconColor = Colors.red;
         }
 
-        final movies = s.data.toList();
-        return GridView.builder(
-          itemCount: movies.length,
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 4,
-          ),
-          itemBuilder: (BuildContext ctx, int i) {
-            final movie = movies[i];
-            return PosterGridCard(
-              movie: movie,
-            );
+        return FloatingActionButton(
+          onPressed: () {
+            if (asyncSnapshot.data == null) {
+              favoriteBloc().add(widget.preloadMovie.id);
+              return;
+            }
+            favoriteBloc().remove(asyncSnapshot.data);
           },
+          child: Icon(
+            Icons.favorite,
+            color: iconColor,
+          ),
         );
       },
     );
   }
-
   void back(BuildContext context) {
     Navigator.of(context).pop();
   }
@@ -159,15 +134,11 @@ class SimilarMovies extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print("SimilarMovies.build");
     return StreamBuilder(
-      key: Key("d"),
       stream: similarMovies$,
       builder: (BuildContext ctx, AsyncSnapshot<PagingCollection<Movie>> s) {
-        print("called builer ${s.data.hashCode} ${s.data} ${s}");
-
         if (!s.hasData) {
-          return Text('loading');
+          return Icon(Icons.autorenew);
         }
 
         final movies = s.data.toList();

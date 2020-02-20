@@ -44,7 +44,8 @@ void main() {
     ..provide(Provider<FavoriteBloc>.function((BuildContext ctx) {
       final fvs = Provide.value<Favorites>(ctx);
       final timeFactory = Provide.value<DateTimeFactory>(ctx);
-      return FavoriteBloc(fvs, timeFactory);
+      final list = Provide.value<FavoriteListBloc>(ctx);
+      return FavoriteBloc(fvs, timeFactory, list);
     }));
 
   runApp(ProviderNode(
