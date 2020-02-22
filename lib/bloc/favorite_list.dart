@@ -21,6 +21,10 @@ class FavoriteListBloc {
         .addStream(_favorites.allFavorites().asStream());
   }
 
+  Future<int> allFavoriteCount() async {
+    return _favorites.allFavoriteCount();
+  }
+
   final StreamController<Tuple2<MovieID, Favorite>> _favoriteController =
       StreamController.broadcast();
 

@@ -16,4 +16,5 @@ abstract class Favorites {
   Future<Favorite> getByMovie(MovieID id);
 
   Future<PagingCollection<Favorite>> allFavorites();
+  Future<int> allFavoriteCount();
 }

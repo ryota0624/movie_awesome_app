@@ -26,4 +26,9 @@ class FavoritesOnMemory extends Favorites {
   Future<void> store(Favorite f) {
     _data[f.movieID.hashCode] = f;
   }
+
+  @override
+  Future<int> allFavoriteCount() async {
+    return _data.values.length;
+  }
 }

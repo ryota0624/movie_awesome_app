@@ -9,14 +9,13 @@ class UserPage extends StatefulWidget {
 }
 
 class _UserPageState extends State<UserPage> {
+  FavoriteListBloc favoriteListBloc() =>
+      Provide.value<FavoriteListBloc>(context);
   final String nickname = 'poti';
 
   void changeIcon() {}
 
   void changeNickname() {}
-
-  FavoriteListBloc favoriteListBloc() =>
-      Provide.value<FavoriteListBloc>(context);
 
   @override
   Widget build(BuildContext context) {
@@ -57,14 +56,47 @@ class _UserPageState extends State<UserPage> {
             flex: 1,
             child: Row(
               children: [
-//                Expanded(child: Achievement.favorite(2)),
-                Expanded(child: Achievement.favorite(2)),
+                Expanded(
+                  child: FutureSucceed(
+                    future: favoriteListBloc().allFavoriteCount(),
+                    onSuccess: (int count) => Achievement.favorite(count),
+                  ),
+                ),
                 Expanded(child: Achievement.review(2)),
               ],
             ),
           ),
         ],
       ),
+    );
+  }
+}
+
+class FutureSucceed<T> extends StatelessWidget {
+  const FutureSucceed({
+    Key key,
+    this.future,
+    this.onSuccess,
+  }) : super(key: key);
+
+  final Future<T> future;
+  final Widget Function(T) onSuccess;
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder(
+      future: future,
+      builder: (BuildContext context, AsyncSnapshot<T> snapshot) {
+        if (!snapshot.hasData) {
+          return Container();
+        }
+
+        if (snapshot.hasError) {
+          throw snapshot.error;
+        }
+
+        return onSuccess(snapshot.data);
+      },
     );
   }
 }
