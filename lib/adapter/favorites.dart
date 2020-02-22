@@ -14,16 +14,16 @@ class FavoritesOnMemory extends Favorites {
 
   @override
   Future<Favorite> getByMovie(MovieID id) async {
-    return _data[id.toString().hashCode];
+    return _data[id.hashCode];
   }
 
   @override
   Future<void> remove(Favorite f) {
-    _data.remove(f.movieID.toString().hashCode);
+    _data.remove(f.movieID.hashCode);
   }
 
   @override
   Future<void> store(Favorite f) {
-    _data[f.movieID.toString().hashCode] = f;
+    _data[f.movieID.hashCode] = f;
   }
 }

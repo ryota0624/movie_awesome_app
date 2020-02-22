@@ -1,14 +1,14 @@
 class MovieID {
   MovieID(this._value);
 
-  final String  _value;
+  final String _value;
 
   @override
   String toString() => _value;
 
   @override
   bool operator ==(dynamic other) {
-    return _value==(other.toString());
+    return hashCode == (other.hashCode);
   }
 
   @override
@@ -29,7 +29,7 @@ class Movie {
 
 final sampleMovies = List<Movie>.generate(
   100,
-      (i) => Movie(
+  (i) => Movie(
     MovieID(i.toString()),
     'https://placehold.jp/150x150.png',
     'title',
