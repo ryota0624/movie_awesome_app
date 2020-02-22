@@ -17,8 +17,8 @@ class FavoriteListBloc {
       _allFavoritesController.stream;
 
   Future<void> fetchAllFavorites({Page page}) async {
-    await _allFavoritesController
-        .addStream(_favorites.allFavorites().asStream());
+    final favs = await _favorites.allFavorites();
+    _allFavoritesController.add(favs);
   }
 
   Future<int> allFavoriteCount() async {

@@ -3,6 +3,7 @@ import 'package:movie_awesome_app/adapter/favorites.dart';
 import 'package:movie_awesome_app/bloc/favorite.dart';
 import 'package:movie_awesome_app/bloc/favorite_list.dart';
 import 'package:movie_awesome_app/bloc/movie_list.dart';
+import 'package:movie_awesome_app/favorite_page.dart';
 import 'package:movie_awesome_app/model/favorite.dart';
 import 'package:movie_awesome_app/model/movies.dart';
 import 'package:movie_awesome_app/movies_page.dart' as list_page;
@@ -160,9 +161,8 @@ extension on AppTab {
       case AppTab.user:
         return UserPage();
 
-//      case AppTab.myReview:
-//        // TODO: Handle this case.
-//        break;
+      case AppTab.favorite:
+        return FavoritePage();
 //      case AppTab.screenSchedule:
 //        // TODO: Handle this case.
 //        break;

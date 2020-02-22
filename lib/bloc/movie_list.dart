@@ -33,4 +33,16 @@ class MovieListBloc {
     print("fetchSimilarMovies $id");
     _similarController.sink.add(Tuple2(id, movies));
   }
+
+  final StreamController<Tuple2<List<MovieID>, List<Movie>>>
+  _moviesByIDsController = StreamController.broadcast();
+
+  Stream<List<Movie>> moviesByIDs$(List<MovieID> ids) =>
+      _moviesByIDsController.stream
+          .where((t) => t.item1.hashCode == ids.hashCode).map((t) => t.item2);
+
+  Future<void> fetchMoviesByIDs(List<MovieID> ids) async {
+    final movies = await _movies.getByIDs(ids);
+    _moviesByIDsController.sink.add(Tuple2(ids, movies));
+  }
 }

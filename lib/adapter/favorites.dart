@@ -24,6 +24,9 @@ class FavoritesOnMemory extends Favorites {
 
   @override
   Future<void> store(Favorite f) {
+    if (_data.containsKey(f.movieID.hashCode)) {
+      return Future.value();
+    }
     _data[f.movieID.hashCode] = f;
   }
 

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-enum AppTab { movies, myReview, screens, news, user }
+enum AppTab { movies, favorite, screens, news, user }
 
 extension AppTabHelper on AppTab {
   String screenHeaderText() => _tabWidgetText();
@@ -15,8 +15,8 @@ extension AppTabWidget on AppTab {
         return 'movies';
       case AppTab.user:
         return 'user';
-      case AppTab.myReview:
-        return 'review';
+      case AppTab.favorite:
+        return 'favorite';
       case AppTab.screens:
         return 'screens';
       case AppTab.news:

@@ -8,10 +8,12 @@ class MoviesOnTmdbApi extends Movies {
 
   final tmdb.TmdbResolver _tmdbResolver;
 
+  final Map<int, Movie> _cache = Map.identity();
+
   @override
   Future<PagingCollection<Movie>> recentMovies({Page page}) async {
     final movies = await _tmdbResolver.discoverMovie(page: page.asInt());
-    return PagingCollection(
+    final c = PagingCollection(
         page,
         movies.results
             .map((m) => Movie(
@@ -20,13 +22,17 @@ class MoviesOnTmdbApi extends Movies {
                   m.title,
                 ))
             .toList());
+    c.toList().forEach((m) {
+      _cache[m.id.hashCode] = m;
+    });
+    return c;
   }
 
   @override
   Future<PagingCollection<Movie>> similarMovies(MovieID id, {Page page}) async {
     final movieIDInt = int.parse(id.toString());
     final movies = await _tmdbResolver.similarMovies(movieIDInt);
-    return PagingCollection(
+    final c = PagingCollection(
         page,
         movies.results
             .map((m) => Movie(
@@ -35,5 +41,15 @@ class MoviesOnTmdbApi extends Movies {
                   m.title,
                 ))
             .toList());
+    c.toList().forEach((m) {
+      _cache[m.id.hashCode] = m;
+    });
+    return c;
+  }
+
+  @override
+  Future<List<Movie>> getByIDs(List<MovieID> ids) async {
+    print('Movies.getByIDs(${ids})');
+    return _cache.values.where((element) => ids.contains(element.id)).toList();
   }
 }
