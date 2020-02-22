@@ -11,9 +11,9 @@ class UserPage extends StatefulWidget {
 class _UserPageState extends State<UserPage> {
   final String nickname = 'poti';
 
-  changeIcon() {}
+  void changeIcon() {}
 
-  changeNickname() {}
+  void changeNickname() {}
 
   FavoriteListBloc favoriteListBloc() =>
       Provide.value<FavoriteListBloc>(context);

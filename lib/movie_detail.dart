@@ -27,7 +27,8 @@ class MovieDetail extends StatefulWidget {
 }
 
 class _MovieDetailState extends State<MovieDetail> {
-  String get posterURL => widget.preloadMovie.posterURL;
+  String get posterURL =>
+      'https://image.tmdb.org/t/p/w500_and_h282_face/${widget.preloadMovie.posterURL}';
 
   MovieListBloc movieListBloc() => Provide.value<MovieListBloc>(context);
 
@@ -42,14 +43,15 @@ class _MovieDetailState extends State<MovieDetail> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-
     if (similarMovies$ == null) {
       similarMovies$ = movieListBloc().similarMovies$(widget.id);
       fetchSimilarMovies();
     }
 
     if (favorite$ == null) {
-      favorite$ = favoriteListBloc().favorite(widget.preloadMovie.id);
+      favorite$ =
+          favoriteListBloc()
+                .favorite$(widget.preloadMovie.id);
       fetchFavoriteByMovie();
     }
   }
@@ -57,7 +59,6 @@ class _MovieDetailState extends State<MovieDetail> {
   @override
   void didUpdateWidget(MovieDetail oldWidget) {
     super.didUpdateWidget(oldWidget);
-    print("didUpdateWidget");
     fetchSimilarMovies();
     fetchFavoriteByMovie();
   }
@@ -72,19 +73,42 @@ class _MovieDetailState extends State<MovieDetail> {
 
   @override
   Widget build(BuildContext context) {
-    print("_MovieDetailState.build");
+    // print('_MovieDetailState.build');
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.preloadMovie.title),
       ),
-      body: MovieDetailBody(
-//        key: Key("MovieDetailBody-${similarMovies$.hashCode}"),
-        id: widget.id,
-        preloadMovie: widget.preloadMovie,
-        similarMovies$: similarMovies$,
+      body:  Column(
+        children: <Widget>[
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                children: <Widget>[
+                  Expanded(
+                    flex: 2,
+                    child: Image.network(
+                       posterURL,
+                      fit: BoxFit.fill,
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  Expanded(
+                    child: SimilarMovies(
+                      key: Key('SimilarMovies-${widget.id}'),
+                      similarMovies$: similarMovies$,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
       floatingActionButton: FavoriteButton(
-//        key: Key("FavoriteButton-${favorite$.hashCode}"),
+        key: Key('FavoriteButton-${widget.id}'),
         favorite$: favorite$,
         tapToFavorite: () => favoriteBloc().add(widget.preloadMovie.id),
         tapToRemoveFavorite: (f) => favoriteBloc().remove(f),
@@ -97,61 +121,6 @@ class _MovieDetailState extends State<MovieDetail> {
   }
 }
 
-class MovieDetailBody extends StatefulWidget {
-  const MovieDetailBody({
-    Key key,
-    this.id,
-    this.preloadMovie,
-    this.similarMovies$,
-  }) : super(key: key);
-
-  final MovieID id;
-  final Movie preloadMovie;
-  final Stream<PagingCollection<Movie>> similarMovies$;
-
-  @override
-  _MovieDetailBodyState createState() => _MovieDetailBodyState();
-}
-
-class _MovieDetailBodyState extends State<MovieDetailBody> {
-  @override
-  Widget build(BuildContext context) {
-    print("_MovieDetailBodyState.build");
-
-    return Column(
-      children: <Widget>[
-        Expanded(
-          child: Padding(
-            padding: EdgeInsets.all(20),
-            child: Column(
-              children: <Widget>[
-                Expanded(
-                  flex: 2,
-                  child: Image.network(
-                    'https://image.tmdb.org/t/p/w500_and_h282_face/' +
-                        widget.preloadMovie.posterURL,
-                    fit: BoxFit.fill,
-                  ),
-                ),
-                SizedBox(
-                  height: 20,
-                ),
-                Expanded(
-                  child: SimilarMovies(
-//                    key: Key(
-//                        'movie_detail_similars_${widget.similarMovies$.hashCode.toString()}'),
-                    similarMovies$: widget.similarMovies$,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
 class SimilarMovies extends StatelessWidget {
   const SimilarMovies({
     Key key,
@@ -161,21 +130,24 @@ class SimilarMovies extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print("SimilarMovies build ${similarMovies$.hashCode.toString()}");
+    // print('SimilarMovies build ${similarMovies$.hashCode.toString()}');
 
     return StreamBuilder(
-//      key: Key(similarMovies$.hashCode.toString()),
       stream: similarMovies$,
       builder: (BuildContext ctx, AsyncSnapshot<PagingCollection<Movie>> s) {
-//        print("SimilarMovies.StreamBuilder.build ${similarMovies$.hashCode.toString()} ${s}");
         if (!s.hasData) {
           return Icon(Icons.autorenew);
         }
 
+        if (s.hasError) {
+          throw s.error;
+        }
+
+
         final movies = s.data.toList();
         return GridView.builder(
           itemCount: movies.length,
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 4,
           ),
           itemBuilder: (BuildContext ctx, int i) {
@@ -203,12 +175,20 @@ class FavoriteButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+//    // // print('FavoriteButton build ${favorite$.hashCode.toString()}');
     return StreamBuilder(
       stream: favorite$,
       builder: (BuildContext ctx, AsyncSnapshot<Favorite> asyncSnapshot) {
+        print('FavoriteButton.StreamBuilder build ${favorite$.hashCode.toString()} ${asyncSnapshot}');
+
         if (asyncSnapshot.connectionState == ConnectionState.waiting) {
           return Container();
         }
+
+        if (asyncSnapshot.hasError) {
+          throw asyncSnapshot.error;
+        }
+
         Color iconColor = Colors.grey;
         if (asyncSnapshot.connectionState == ConnectionState.active &&
             asyncSnapshot.data != null) {

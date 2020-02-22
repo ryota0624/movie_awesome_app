@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:movie_awesome_app/model/favorite.dart';
 import 'package:movie_awesome_app/model/movie.dart';
 import 'package:movie_awesome_app/model/paging_collection.dart';
+import 'package:tuple/tuple.dart';
 
 class FavoriteListBloc {
   FavoriteListBloc(this._favorites);
@@ -20,16 +21,22 @@ class FavoriteListBloc {
         .addStream(_favorites.allFavorites().asStream());
   }
 
-  final StreamController<Favorite> _favoriteController =
-  StreamController.broadcast();
+  final StreamController<Tuple2<MovieID, Favorite>> _favoriteController =
+      StreamController.broadcast();
 
-  Stream<Favorite> favorite(MovieID id) => //_favoriteController.stream;
-      _favoriteController.stream.where((f) => f.movieID == id);
+  Stream<Favorite> favorite$(MovieID id) {
+    return _favoriteController.stream.where((f) {
+      return f.item1 == id;
+    }).map((f) => f.item2);
+  }
+
+  Future<Favorite> favorite(MovieID id) {
+    return _favorites.getByMovie(id);
+  }
 
   Future<void> fetchFavoriteByMovie(MovieID movieID) async {
     final f = await _favorites.getByMovie(movieID);
     print("fetchFavoriteByMovie $f $movieID");
-    _favoriteController.add(f);
+    _favoriteController.add(Tuple2(movieID, f));
   }
 }
-

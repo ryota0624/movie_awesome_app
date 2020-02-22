@@ -61,7 +61,7 @@ class MovieApp extends StatelessWidget {
       onGenerateRoute: (RouteSettings routeSettings) {
         final route = routeSettings.arguments;
         if (route is routes.Home) {
-          return MaterialPageRoute(
+          return MaterialPageRoute<dynamic>(
             builder: (_) => MyHomePage(
               initialSelectedTab: route.initialAppTab,
             ),
@@ -69,7 +69,7 @@ class MovieApp extends StatelessWidget {
         }
 
         if (route is routes.MovieDetail) {
-          return MaterialPageRoute(
+          return MaterialPageRoute<dynamic>(
             builder: (_) {
               print("rebuild MaterialPageRoute");
               return MovieDetail(

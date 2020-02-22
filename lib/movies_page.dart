@@ -48,7 +48,7 @@ class Movies extends StatefulWidget {
 class _MoviesState extends State<Movies> with SingleTickerProviderStateMixin {
   TabController _tabController;
   TextEditingController _searchEditingController;
-  StreamController<List<Movie>> _similarMovies$;
+  StreamController<List<Movie>> _recentMovies$;
   Page _currentPage;
 
   StreamSubscription _recentMoviesSubscription;
@@ -61,15 +61,17 @@ class _MoviesState extends State<Movies> with SingleTickerProviderStateMixin {
   }
 
   StreamSubscription startSubscribeRecentMovies() {
-    if (_similarMovies$.isClosed) {
-      _similarMovies$ = StreamController();
+    if (_recentMovies$.isClosed) {
+      _recentMovies$ = StreamController();
     }
     var sumCollection = List<Movie>();
     return movieListBloc(context).recentMovies().listen((movieCollection) {
       // TODO(ryota0624): resolve Unhandled Exception: Bad state: Cannot add event after closing
       _currentPage = movieCollection.page;
       sumCollection.addAll(movieCollection.toList());
-      _similarMovies$.add(sumCollection);
+      if (!_recentMovies$.isClosed) {
+        _recentMovies$.add(sumCollection);
+      }
     });
   }
 
@@ -82,7 +84,7 @@ class _MoviesState extends State<Movies> with SingleTickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    _similarMovies$ = StreamController();
+    _recentMovies$ = StreamController();
     _tabController = TabController(
       length: MoviesPageTab.values.length,
       vsync: this,
@@ -98,11 +100,11 @@ class _MoviesState extends State<Movies> with SingleTickerProviderStateMixin {
   @override
   dispose() {
     super.dispose();
-    _similarMovies$.close();
+    _recentMovies$.close();
     _recentMoviesSubscription.cancel();
   }
 
-  loadMoreMovies() {
+  void loadMoreMovies() {
     movieListBloc(context).fetchRecentMovies(page: _currentPage);
   }
 
@@ -127,7 +129,7 @@ class _MoviesState extends State<Movies> with SingleTickerProviderStateMixin {
         tabBar,
         Flexible(
           child: StreamBuilder(
-              stream: _similarMovies$.stream,
+              stream: _recentMovies$.stream,
               builder: (BuildContext c, AsyncSnapshot<List<Movie>> s) {
                 if (s.hasData) {
                   return TabBarView(
