@@ -99,7 +99,7 @@ class _MoviesState extends State<Movies> with SingleTickerProviderStateMixin {
   }
 
   void loadMoreMovies() {
-    movieListBloc(context).fetchRecentMovies(page: _currentPage);
+    movieListBloc(context).fetchRecentMovies(page: _currentPage.next());
   }
 
   TabBar get tabBar => TabBar(

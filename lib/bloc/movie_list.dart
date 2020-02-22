@@ -17,7 +17,8 @@ class MovieListBloc {
       _recentController.stream
           .where((c) => page == null ? true : c.equalPage(page));
 
-  Future<void> fetchRecentMovies({Page page = Page.initial}) async {
+  Future<void> fetchRecentMovies({Page page}) async {
+    page ??= Page.initial;
     final movies = await _movies.recentMovies(page: page);
     _recentController.add(movies);
   }
