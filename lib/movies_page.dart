@@ -76,12 +76,6 @@ class _MoviesState extends State<Movies> with SingleTickerProviderStateMixin {
   }
 
   @override
-  void didUpdateWidget(Movies oldWidget) {
-    // TODO: implement didUpdateWidget
-    super.didUpdateWidget(oldWidget);
-  }
-
-  @override
   void initState() {
     super.initState();
     _recentMovies$ = StreamController();
@@ -92,13 +86,13 @@ class _MoviesState extends State<Movies> with SingleTickerProviderStateMixin {
 
     _searchEditingController = TextEditingController()
       ..addListener(() {
-        // TODO search Movie
+        // TODO(ryota0624): search Movie
 //        _searchEditingController.text
       });
   }
 
   @override
-  dispose() {
+  void dispose() {
     super.dispose();
     _recentMovies$.close();
     _recentMoviesSubscription.cancel();
@@ -141,7 +135,7 @@ class _MoviesState extends State<Movies> with SingleTickerProviderStateMixin {
                   );
                 }
 
-                return Text('Loading');
+                return const Text('Loading');
               }),
         ),
       ],
