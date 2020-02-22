@@ -28,5 +28,6 @@ class FavoriteBloc {
 
   Future<void> remove(Favorite f) async {
     await _favorites.remove(f);
+    await _listBlock.fetchFavoriteByMovie(f.movieID);
   }
 }

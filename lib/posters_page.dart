@@ -47,7 +47,7 @@ class PosterGridCard extends StatelessWidget {
       onTap: () => transitionToMovieDetail(context),
       child: Image.network(
         // posterのサイズをいい感じにする
-        'https://image.tmdb.org/t/p/w500_and_h282_face/' +
+        'https://image.tmdb.org/t/p/w250_and_h141_face/' +
             movie.posterURL,
         fit: BoxFit.fill,
       ),
