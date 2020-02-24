@@ -77,7 +77,7 @@ class _MovieDetailState extends State<MovieDetail> {
       appBar: AppBar(
         title: Text(widget.preloadMovie.title),
       ),
-      body:  Column(
+      body: Column(
         children: <Widget>[
           Expanded(
             child: Padding(
@@ -86,9 +86,12 @@ class _MovieDetailState extends State<MovieDetail> {
                 children: <Widget>[
                   Expanded(
                     flex: 2,
-                    child: Image.network(
-                       posterURL,
-                      fit: BoxFit.fill,
+                    child: Hero(
+                      tag: widget.preloadMovie.id.toString(),
+                      child: Image.network(
+                         posterURL,
+                        fit: BoxFit.fill,
+                      ),
                     ),
                   ),
                   const SizedBox(
